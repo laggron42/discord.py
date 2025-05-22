@@ -1292,7 +1292,7 @@ class _InteractionMessageState:
     __slots__ = ('_parent', '_interaction')
 
     def __init__(self, interaction: Interaction[ClientT], parent: ConnectionState):
-        self._interaction: Interaction[ClientT] = interaction
+        self._interaction = interaction
         self._parent: ConnectionState = parent
 
     def _get_guild(self, guild_id):

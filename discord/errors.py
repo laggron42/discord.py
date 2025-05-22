@@ -283,7 +283,7 @@ class InteractionResponded(ClientException):
     """
 
     def __init__(self, interaction: Interaction[ClientT]):
-        self.interaction: Interaction[ClientT] = interaction
+        self.interaction = interaction
         super().__init__('This interaction has already been responded to before')
 
 
