@@ -166,7 +166,9 @@ class Modal(View):
         """
         _log.error('Ignoring exception in modal %r:', self, exc_info=error)
 
-    def _refresh(self, interaction: Interaction, components: Sequence[ModalSubmitComponentInteractionDataPayload]) -> None:
+    def _refresh(
+        self, interaction: Interaction[ClientT], components: Sequence[ModalSubmitComponentInteractionDataPayload]
+    ) -> None:
         for component in components:
             if component['type'] == 1:
                 self._refresh(interaction, component['components'])
@@ -177,7 +179,9 @@ class Modal(View):
                     continue
                 item._refresh_state(interaction, component)  # type: ignore
 
-    async def _scheduled_task(self, interaction: Interaction, components: List[ModalSubmitComponentInteractionDataPayload]):
+    async def _scheduled_task(
+        self, interaction: Interaction[ClientT], components: List[ModalSubmitComponentInteractionDataPayload]
+    ):
         try:
             self._refresh_timeout()
             self._refresh(interaction, components)
@@ -195,7 +199,7 @@ class Modal(View):
             self.stop()
 
     def _dispatch_submit(
-        self, interaction: Interaction, components: List[ModalSubmitComponentInteractionDataPayload]
+        self, interaction: Interaction[ClientT], components: List[ModalSubmitComponentInteractionDataPayload]
     ) -> None:
         asyncio.create_task(self._scheduled_task(interaction, components), name=f'discord-ui-modal-dispatch-{self.id}')
 

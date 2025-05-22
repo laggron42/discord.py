@@ -31,6 +31,7 @@ from ..role import Role
 from ..message import Message, Attachment
 from ..channel import PartialMessageable
 from ..enums import AppCommandOptionType
+from .._types import ClientT
 from .models import AppCommandChannel, AppCommandThread
 
 if TYPE_CHECKING:
@@ -134,7 +135,7 @@ class Namespace:
 
     def __init__(
         self,
-        interaction: Interaction,
+        interaction: Interaction[ClientT],
         resolved: ResolvedData,
         options: List[ApplicationCommandInteractionDataOption],
     ):
@@ -174,7 +175,7 @@ class Namespace:
                 self.__dict__[name] = value
 
     @classmethod
-    def _get_resolved_items(cls, interaction: Interaction, resolved: ResolvedData) -> Dict[ResolveKey, Any]:
+    def _get_resolved_items(cls, interaction: Interaction[ClientT], resolved: ResolvedData) -> Dict[ResolveKey, Any]:
         completed: Dict[ResolveKey, Any] = {}
         state = interaction._state
         members = resolved.get('members', {})

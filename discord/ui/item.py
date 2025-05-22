@@ -77,7 +77,7 @@ class Item(Generic[V]):
     def _refresh_component(self, component: Component) -> None:
         return None
 
-    def _refresh_state(self, interaction: Interaction, data: Dict[str, Any]) -> None:
+    def _refresh_state(self, interaction: Interaction[ClientT], data: Dict[str, Any]) -> None:
         return None
 
     @classmethod

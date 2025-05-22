@@ -51,6 +51,7 @@ from .errors import (
 from ..user import User
 from ..permissions import Permissions
 from ..utils import get as utils_get, MISSING, maybe_coroutine
+from .._types import ClientT
 
 T = TypeVar('T')
 
@@ -219,7 +220,7 @@ def has_role(item: Union[int, str], /) -> Callable[[T], T]:
         The name or ID of the role to check.
     """
 
-    def predicate(interaction: Interaction) -> bool:
+    def predicate(interaction: Interaction[ClientT]) -> bool:
         if isinstance(interaction.user, User):
             raise NoPrivateMessage()
 
@@ -270,7 +271,7 @@ def has_any_role(*items: Union[int, str]) -> Callable[[T], T]:
             await interaction.response.send_message('You are cool indeed')
     """
 
-    def predicate(interaction: Interaction) -> bool:
+    def predicate(interaction: Interaction[ClientT]) -> bool:
         if isinstance(interaction.user, User):
             raise NoPrivateMessage()
 
@@ -328,7 +329,7 @@ def has_permissions(**perms: bool) -> Callable[[T], T]:
     if invalid:
         raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
 
-    def predicate(interaction: Interaction) -> bool:
+    def predicate(interaction: Interaction[ClientT]) -> bool:
         permissions = interaction.permissions
 
         missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
@@ -355,7 +356,7 @@ def bot_has_permissions(**perms: bool) -> Callable[[T], T]:
     if invalid:
         raise TypeError(f"Invalid permission(s): {', '.join(invalid)}")
 
-    def predicate(interaction: Interaction) -> bool:
+    def predicate(interaction: Interaction[ClientT]) -> bool:
         permissions = interaction.app_permissions
         missing = [perm for perm, value in perms.items() if getattr(permissions, perm) != value]
 
@@ -374,7 +375,7 @@ def _create_cooldown_decorator(
     mapping: Dict[Any, Cooldown] = {}
 
     async def get_bucket(
-        interaction: Interaction,
+        interaction: Interaction[ClientT],
         *,
         mapping: Dict[Any, Cooldown] = mapping,
         key: CooldownFunction[Hashable] = key,
@@ -395,7 +396,7 @@ def _create_cooldown_decorator(
 
         return bucket
 
-    async def predicate(interaction: Interaction) -> bool:
+    async def predicate(interaction: Interaction[ClientT]) -> bool:
         bucket = await get_bucket(interaction)
         if bucket is None:
             return True

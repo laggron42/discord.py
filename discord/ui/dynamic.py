@@ -124,7 +124,7 @@ class DynamicItem(Generic[BaseT], Item['View']):
     def _refresh_component(self, component: Component) -> None:
         self.item._refresh_component(component)
 
-    def _refresh_state(self, interaction: Interaction, data: Dict[str, Any]) -> None:
+    def _refresh_state(self, interaction: Interaction[ClientT], data: Dict[str, Any]) -> None:
         self.item._refresh_state(interaction, data)
 
     @classmethod

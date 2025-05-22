@@ -30,6 +30,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Tuple, TypeVar
 from ..components import TextInput as TextInputComponent
 from ..enums import ComponentType, TextStyle
 from ..utils import MISSING
+from .._types import ClientT
 from .item import Item
 
 if TYPE_CHECKING:
@@ -226,7 +227,7 @@ class TextInput(Item[V]):
     def _refresh_component(self, component: TextInputComponent) -> None:
         self._underlying = component
 
-    def _refresh_state(self, interaction: Interaction, data: ModalSubmitTextInputInteractionDataPayload) -> None:
+    def _refresh_state(self, interaction: Interaction[ClientT], data: ModalSubmitTextInputInteractionDataPayload) -> None:
         self._value = data.get('value', None)
 
     @classmethod

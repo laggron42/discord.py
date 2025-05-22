@@ -59,6 +59,7 @@ from ..role import Role
 from ..user import User, ClientUser
 from ..abc import GuildChannel
 from ..threads import Thread
+from .._types import ClientT
 
 __all__ = (
     'Select',
@@ -327,7 +328,7 @@ class BaseSelect(Item[V]):
     def _refresh_component(self, component: SelectMenu) -> None:
         self._underlying = component
 
-    def _refresh_state(self, interaction: Interaction, data: SelectMessageComponentInteractionData) -> None:
+    def _refresh_state(self, interaction: Interaction[ClientT], data: SelectMessageComponentInteractionData) -> None:
         values = selected_values.get({})
         payload: List[PossibleValue]
         try:

@@ -59,6 +59,7 @@ from ..user import User
 from ..member import Member
 from ..permissions import Permissions
 from ..utils import resolve_annotation, MISSING, is_inside_class, maybe_coroutine, async_all, _shorten, _to_kebab_case
+from .._types import ClientT
 
 if TYPE_CHECKING:
     from typing_extensions import ParamSpec, Concatenate
@@ -793,7 +794,7 @@ class Command(Generic[GroupT, P, T]):
 
         return base
 
-    async def _invoke_error_handlers(self, interaction: Interaction, error: AppCommandError) -> None:
+    async def _invoke_error_handlers(self, interaction: Interaction[ClientT], error: AppCommandError) -> None:
         # These type ignores are because the type checker can't narrow this type properly.
         if self.on_error is not None:
             if self.binding is not None:
@@ -832,7 +833,7 @@ class Command(Generic[GroupT, P, T]):
 
         return False
 
-    async def _transform_arguments(self, interaction: Interaction, namespace: Namespace) -> Dict[str, Any]:
+    async def _transform_arguments(self, interaction: Interaction[ClientT], namespace: Namespace) -> Dict[str, Any]:
         values = namespace.__dict__
         transformed_values = {}
 
@@ -849,7 +850,7 @@ class Command(Generic[GroupT, P, T]):
 
         return transformed_values
 
-    async def _do_call(self, interaction: Interaction, params: Dict[str, Any]) -> T:
+    async def _do_call(self, interaction: Interaction[ClientT], params: Dict[str, Any]) -> T:
         # These type ignores are because the type checker doesn't quite understand the narrowing here
         # Likewise, it thinks we're missing positional arguments when there aren't any.
         try:
@@ -875,14 +876,14 @@ class Command(Generic[GroupT, P, T]):
         except Exception as e:
             raise CommandInvokeError(self, e) from e
 
-    async def _invoke_with_namespace(self, interaction: Interaction, namespace: Namespace) -> T:
+    async def _invoke_with_namespace(self, interaction: Interaction[ClientT], namespace: Namespace) -> T:
         if not await self._check_can_run(interaction):
             raise CheckFailure(f'The check functions for command {self.name!r} failed.')
 
         transformed_values = await self._transform_arguments(interaction, namespace)
         return await self._do_call(interaction, transformed_values)
 
-    async def _invoke_autocomplete(self, interaction: Interaction, name: str, namespace: Namespace):
+    async def _invoke_autocomplete(self, interaction: Interaction[ClientT], name: str, namespace: Namespace):
         # The namespace contains the Discord provided names so this will be fine
         # even if the name is renamed
         value = namespace.__dict__[name]
@@ -993,7 +994,7 @@ class Command(Generic[GroupT, P, T]):
 
         return ' '.join(reversed(names))
 
-    async def _check_can_run(self, interaction: Interaction) -> bool:
+    async def _check_can_run(self, interaction: Interaction[ClientT]) -> bool:
         if self.parent is not None and self.parent is not self.binding:
             # For commands with a parent which isn't the binding, i.e.
             # <binding>
@@ -1303,7 +1304,7 @@ class ContextMenu:
             'nsfw': self.nsfw,
         }
 
-    async def _check_can_run(self, interaction: Interaction) -> bool:
+    async def _check_can_run(self, interaction: Interaction[ClientT]) -> bool:
         predicates = self.checks
         if not predicates:
             return True
@@ -1313,7 +1314,7 @@ class ContextMenu:
     def _has_any_error_handlers(self) -> bool:
         return self.on_error is not None
 
-    async def _invoke(self, interaction: Interaction, arg: Any):
+    async def _invoke(self, interaction: Interaction[ClientT], arg: Any):
         try:
             if not await self._check_can_run(interaction):
                 raise CheckFailure(f'The check functions for context menu {self.name!r} failed.')
@@ -1797,7 +1798,7 @@ class Group:
                 yield from command.walk_commands()
 
     @mark_overrideable
-    async def on_error(self, interaction: Interaction, error: AppCommandError, /) -> None:
+    async def on_error(self, interaction: Interaction[ClientT], error: AppCommandError, /) -> None:
         """|coro|
 
         A callback that is called when a child's command raises an :exc:`AppCommandError`.
@@ -1845,7 +1846,7 @@ class Group:
         self.on_error = coro  # type: ignore
         return coro
 
-    async def interaction_check(self, interaction: Interaction, /) -> bool:
+    async def interaction_check(self, interaction: Interaction[ClientT], /) -> bool:
         """|coro|
 
         A callback that is called when an interaction happens within the group
